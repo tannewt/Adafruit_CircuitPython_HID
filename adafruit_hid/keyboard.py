@@ -41,15 +41,15 @@ class Keyboard:
     # No more than _MAX_KEYPRESSES regular keys may be pressed at once.
     _MAX_KEYPRESSES = 6
 
-    def __init__(self):
+    def __init__(self, devices):
         """Create a Keyboard object that will send USB keyboard HID reports."""
         self.hid_keyboard = None
-        for device in usb_hid.devices:
-            if device.usage_page == 0x1 and device.usage == 0x06:
+        for device in devices:
+            if device.usage_page == 0x1 and device.usage == 0x06 and hasattr(device, "send_report"):
                 self.hid_keyboard = device
                 break
         if not self.hid_keyboard:
-            raise IOError("Could not find an HID keyboard device.")
+            raise ValueError("Could not find an HID keyboard device.")
 
         # Reuse this bytearray to send keyboard reports.
         self.report = bytearray(8)
